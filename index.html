@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Expensify Take-Home Challenge</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+    <div id="loginContent">
+
+        <div id="errorLogin">
+            <div class="alert">
+                <span class="closebtn" onclick="errorBanner()">&times;</span>
+                <!-- Add error message here -->
+                <p id="errorMessage"></p>
+            </div>
+        </div>
+
+        <div id="loginForm">
+            <form id="login" method="post" action="javascript:alert('Attempting to login. Please wait.');">
+                <input type="email" name="partnerUserID" value="expensifytest@mailinator.com" required placeholder="Email">
+                <input type="text" name="partnerUserSecret" value="hire_me" required placeholder="Password">
+                <button type="sumbit">Sign in</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="transactionForm">
+        <div id="transactionModal" class="modal">
+            <div class="txn-modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <!-- Modal content goes here -->
+                <form id="transaction" method="get">
+                    <input type="text" name="txnCreated" value="3000-09-09" required placeholder="Password"></br>
+                    <input type="text" name="txnMerchant" value="Amiri" required placeholder="Password"></br>
+                    <input type="text" name="txnAmount" value="200000" required placeholder="Password"></br>
+                    <button type="sumbit">Create TXN</button>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <button class="txn-btn" onclick="openModal()">Add TXN</button>
+        </div>
+
+        <button type="submit" onclick="getUserTxn()">CALL GET!</button>
+    </div>
+
+    
+    <div id="transactionTable">
+        <h1>Transactions:</h1>
+        <table id="dataTable">
+
+            <thead>
+                <tr>
+                    <th>Transaction Date</th>
+                    <th>Merchant</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+
+            <tbody id="transactionTableBody">
+                <!-- Add the transaction rows here -->
+            </tbody>
+
+        </table>
+    </div>
+    <!-- Javascript Files, we've included JQuery here, feel free to use at your discretion. Add whatever else you may need here too. CSS Manipulation like hide-->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+
+</body>
+
+</html>
