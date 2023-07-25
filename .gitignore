@@ -1,0 +1,5 @@
+# Ignore files
+.cookies.txt
+.config.php
+.env
+.DS_Store
