@@ -1,17 +1,11 @@
 $(document).ready(() => {
     console.log('ready!');
-    // inital view
-    if (sessionStorage.length >= 1) {
-        $("#loginContent").hide();
-        $("#errorLogin").hide();
-        $("#transactionTable").show();
-        $("#transactionForm").show();
+    // user is logged in, display transaction table with txn
+    if (sessionStorage.length >= 1 && sessionStorage.getItem('loggedIn')) {
+        loggedInStateUi();
         getUserTxn();
     } else {
-        $("#loginContent").show();
-        $("#errorLogin").hide();
-        $("#transactionTable").hide();
-        $("#transactionForm").hide();
+        loggedOutStateUi();
     }
 
     // login event handler
@@ -20,12 +14,11 @@ $(document).ready(() => {
 
         isAuthUser = authenticateUser()
         if (isAuthUser) {
-            $("#loginContent").hide();
-            $("#transactionTable").show();
-            $("#transactionForm").show();
+            // user is successfully logged in
+            loggedInStateUi();
             getUserTxn();
         } else {
-            // error handle display logic
+            // failed log in - error message
             $("#errorLogin").show();
             $("#errorMessage").html("Unable to log in. Please verify your email address and password is correct");
         }
@@ -74,17 +67,17 @@ const getUserTxn = () => {
     })
         .then((data) => {
             resp = JSON.parse((data));
-            if (resp.jsonCode >= 400) {
-                console.log("DAMN")
-                return resp.title
+            // auth token expired, show sign in flow
+            if (resp.jsonCode === 407) {
+                loggedOutStateUi();
+                return
             }
             const tbody = document.getElementById('transactionTableBody');
-            console.log(typeof resp);
             resp.transactionList.forEach(txn => {
                 const row = tbody.insertRow();
 
                 const date_col = row.insertCell();
-                date_col.textContent = txn.created;
+                date_col.textContent = txn.inserted.split(" ")[0];
 
                 const merchant_col = row.insertCell();
                 merchant_col.textContent = txn.merchant;
@@ -111,6 +104,13 @@ const createUserTxn = () => {
     })
         .then((data) => {
             console.log(`Successfully ${data}`);
+            resp = JSON.parse((data));
+            // auth token expired, show sign in
+            if (resp.jsonCode === 407) {
+                loggedOutStateUi();
+                return
+            }
+            closeModal();
         })
         .catch((err) => {
             console.error(`ERROR: ${err}`);
@@ -130,4 +130,19 @@ const closeModal = () => {
 const errorBanner = () => {
     document.getElementById("errorLogin")
         .style.display = "none";
+}
+
+const loggedInStateUi = () => {
+    $("#loginContent").hide();
+    $("#errorLogin").hide();
+    $("#transactionTable").show();
+    $("#transactionForm").show();
+}
+
+const loggedOutStateUi = () => {
+    sessionStorage.removeItem('loggedIn');
+    $("#loginContent").show();
+    $("#errorLogin").hide();
+    $("#transactionTable").hide();
+    $("#transactionForm").hide();
 }

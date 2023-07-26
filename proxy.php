@@ -1,11 +1,18 @@
 <?php
-// server should keep session data for AT LEAST 5 min
-ini_set('session.gc_maxlifetime', 450);
-
+// store the expensify access token
 session_start();
 if(!isset($_SESSION["user"])) {
   $_SESSION["user"] = "";
 }
+
+// last request was more than 2 minutes ago
+// resource: https://stackoverflow.com/questions/520237/how-do-i-expire-a-php-session-after-30-minutes
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 120)) {
+  session_unset();
+  session_destroy();
+}
+$_SESSION['LAST_ACTIVITY'] = time();
+
 // Get $baseURL from the superglobal $_REQUEST object
 $baseURL = $_REQUEST["url"];
 
@@ -13,11 +20,10 @@ $baseURL = $_REQUEST["url"];
 $requestMethod = $_SERVER["REQUEST_METHOD"]; 
 
 function getJSON($baseURL) {
-
   $ch = curl_init();
-  $token = 'authToken=' . $_SESSION["user"];
   $finalUrl = $baseURL . "&returnValueList=" . $_GET["returnValueList"];
-// explain setup   
+  $token = 'authToken=' . $_SESSION["user"];
+
   curl_setopt($ch, CURLOPT_URL, $finalUrl);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -29,6 +35,7 @@ function getJSON($baseURL) {
   $response = curl_exec($ch);
 
   if ($response === false) {
+    // auth token is expired
     if ($response.jsonCode === 407) {
       session_destroy();
     }
@@ -47,15 +54,11 @@ function postJSON($baseURL) {
     $data = http_build_query($_POST);
 
     curl_setopt($ch, CURLOPT_URL, $baseURL);
-    // handle consecutive post request
+    // set cookie for consecuitve request
     if(isset($_SESSION["user"])) {
       $token = 'authToken=' . $_SESSION["user"];
       curl_setopt($ch, CURLOPT_COOKIE, $token);
     }
-    // curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    //   "Content-Type: application/x-www-form-urlencoded",
-    //   "Connection: keep-alive",
-    // ));
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -63,6 +66,7 @@ function postJSON($baseURL) {
     $json = "";
     $response = curl_exec($ch); 
     if ($response === false) {
+      // auth token is expired
       if ($response.jsonCode === 407) {
         session_destroy();
       }
@@ -72,6 +76,7 @@ function postJSON($baseURL) {
       $json = json_decode($response, true);
       // first post request receives a cookie
       if(empty($_SESSION["user"])) {
+        $_SESSION['LAST_ACTIVITY'] = time();
         $_SESSION["user"] = $json["authToken"];
       }
     }
@@ -81,7 +86,6 @@ function postJSON($baseURL) {
     echo json_encode($json);
   }
 
-// switch to if else if 
 $response = "";
 switch ($requestMethod) {
   case "GET":
