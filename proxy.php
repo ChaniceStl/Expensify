@@ -1,13 +1,12 @@
 <?php
-// store the expensify access token
 session_start();
 if(!isset($_SESSION["user"])) {
   $_SESSION["user"] = "";
 }
 
-// last request was more than 2 minutes ago
+// last request was more than 5 minutes ago
 // resource: https://stackoverflow.com/questions/520237/how-do-i-expire-a-php-session-after-30-minutes
-if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 120)) {
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 300)) {
   session_unset();
   session_destroy();
 }

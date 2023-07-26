@@ -18,7 +18,7 @@ $(document).ready(() => {
             loggedInStateUi();
             getUserTxn();
         } else {
-            // failed log in - error message
+            // failed log in - error message (currently not working)
             $("#errorLogin").show();
             $("#errorMessage").html("Unable to log in. Please verify your email address and password is correct");
         }
@@ -66,7 +66,7 @@ const getUserTxn = () => {
         },
     })
         .then((data) => {
-            resp = JSON.parse((data));
+            resp = JSON.parse(data);
             // auth token expired, show sign in flow
             if (resp.jsonCode === 407) {
                 loggedOutStateUi();
@@ -92,25 +92,19 @@ const getUserTxn = () => {
 }
 
 const createUserTxn = () => {
-    // hard coded data
+    const formData = $('#transaction').serialize()
     $.ajax({
         url: 'proxy.php?url=https://www.expensify.com/api?command=CreateTransaction',
         type: 'POST',
-        data: {
-            created: '2023-06-29',
-            amount: 200000,
-            merchant: 'Amiri',
-        },
+        data: formData,
     })
         .then((data) => {
-            console.log(`Successfully ${data}`);
-            resp = JSON.parse((data));
-            // auth token expired, show sign in
+            closeModal();
+            resp = JSON.parse(data);
+            // auth token expired
             if (resp.jsonCode === 407) {
                 loggedOutStateUi();
-                return
             }
-            closeModal();
         })
         .catch((err) => {
             console.error(`ERROR: ${err}`);
