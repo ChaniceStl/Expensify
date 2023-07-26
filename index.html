@@ -20,8 +20,8 @@
 
         <div id="loginForm">
             <form id="login" method="post" action="javascript:alert('Attempting to login. Please wait.');">
-                <input type="email" name="partnerUserID" value="expensifytest@mailinator.com" required placeholder="Email">
-                <input type="text" name="partnerUserSecret" value="hire_me" required placeholder="Password">
+                <input type="email" name="partnerUserID" required placeholder="Email">
+                <input type="text" name="partnerUserSecret" required placeholder="Password">
                 <button type="sumbit">Sign in</button>
             </form>
         </div>
@@ -48,7 +48,7 @@
         <button type="submit" onclick="getUserTxn()">CALL GET!</button>
     </div>
 
-    
+
     <div id="transactionTable">
         <h1>Transactions:</h1>
         <table id="dataTable">
