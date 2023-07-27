@@ -39,9 +39,9 @@ $(document).ready(() => {
 });
 
 const authenticateUser = () => {
-    const options = '&partnerName=applicant&partnerPassword=d7c3119c6cdab02d68d9'
+    // These env variables are stored on heroku dashboard
+    const options = `&partnerName=${process.env.PARTNER_NAME}&partnerPassword=${process.env.PARTNER_PASSWORD}`
     const formData = $('#login').serialize().concat(options);
-
     $.ajax({
         url: 'proxy.php?url=https://www.expensify.com/api?command=Authenticate',
         type: 'POST',
