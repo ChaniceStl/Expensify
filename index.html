@@ -8,64 +8,75 @@
 </head>
 
 <body>
-    <div id="loginContent">
-
-        <div id="errorLogin">
-            <div class="alert">
-                <span class="closebtn" onclick="errorBanner()">&times;</span>
-                <!-- Add error message here -->
-                <p id="errorMessage"></p>
+    <div class="container">
+        <div id="loginContent">
+            <div id="errorLogin">
+                <div class="alert">
+                    <span class="closebtn" onclick="errorBanner()">&times;</span>
+                    <!-- Add error message here -->
+                    <p id="errorMessage"></p>
+                </div>
             </div>
-        </div>
 
-        <div id="loginForm">
-            <form id="login" method="post" action="javascript:alert('Attempting to login. Please wait.');">
-                <input type="email" name="partnerUserID" required placeholder="Email">
-                <input type="text" name="partnerUserSecret" required placeholder="Password">
-                <button type="sumbit">Sign in</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="transactionForm">
-        <div id="transactionModal" class="modal">
-            <div class="txn-modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <!-- Modal content goes here -->
-                <form id="transaction" method="get">
-                    <input type="date" name="created" required></br>
-                    <input type="text" name="merchant" required placeholder="Merchant Name"></br>
-                    <input type="text" name="amount" required placeholder="Amount"></br>
-                    <button type="sumbit">Create TXN</button>
+            <div id="loginForm">
+                <form id="login" method="post" action="javascript:alert('Attempting to login. Please wait.');">
+                    <h1>Login</h1>
+                    <div class="form-group">
+                        <input type="email" class="form-control" name="partnerUserID" required placeholder="Email">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="partnerUserSecret" required
+                            placeholder="Password">
+                    </div>
+                    <button type="sumbit" class="btn">Login</button>
                 </form>
             </div>
         </div>
 
-        <div>
-            <button class="txn-btn" onclick="openModal()">Add TXN</button>
+        <div id="transactionForm">
+            <div id="transactionModal" class="modal">
+                <div class="txn-modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <!-- Modal content goes here -->
+                    <form id="transaction" method="get">
+                        <h1>Add Transaction</h1>
+                        <div class="form-group">
+                            <input type="date" class="form-control" name="created" required></br>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="merchant" required
+                                placeholder="Merchant Name"></br>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="amount" required placeholder="Amount"></br>
+                        </div>
+                        <button type="sumbit" class="btn">Add Transaction</button>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <button class="txn-btn" onclick="openModal()">Add TXN</button>
+            </div>
         </div>
 
-        <button type="submit" onclick="getUserTxn()">CALL GET!</button>
-    </div>
 
-
-    <div id="transactionTable">
-        <h1>Transactions:</h1>
-        <table id="dataTable">
-
-            <thead>
+        <div id="transactionTable">
+            <h1>Transactions:</h1>
+            <table class="content-table">
                 <tr>
-                    <th>Transaction Date</th>
-                    <th>Merchant</th>
-                    <th>Amount</th>
+                    <th scope="col">Transaction Date</th>
+                    <th scope="col">Merchant</th>
+                    <th scope="col">Amount</th>
                 </tr>
-            </thead>
-
-            <tbody id="transactionTableBody">
-                <!-- Add the transaction rows here -->
-            </tbody>
-
-        </table>
+                <div id="nav">
+                    <!-- Add page nav here -->
+                </div>
+                <tbody id="transactionTableBody">
+                    <!-- Add the transaction rows here -->
+                </tbody>
+            </table>
+        </div>
     </div>
     <!-- Javascript Files, we've included JQuery here, feel free to use at your discretion. Add whatever else you may need here too. CSS Manipulation like hide-->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>

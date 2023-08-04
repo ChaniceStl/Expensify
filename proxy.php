@@ -70,7 +70,7 @@ function postJSON($baseURL) {
         session_destroy();
       }
       $err = curl_error($ch);
-      echo $err;
+      echo json_encode($err);
     } else {
       $json = json_decode($response, true);
       // first post request receives a cookie
