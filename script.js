@@ -71,7 +71,7 @@ const getUserTxn = () => {
                 loggedOutStateUi();
                 return;
             }
-            resp["transactionList"].sort((a, b) => new Date(b.inserted) - new Date(a.inserted));
+            // paginate transaction items
             generateItems(resp["transactionList"]);
 
         }).catch((data) => {
@@ -143,12 +143,14 @@ const loggedOutStateUi = () => {
 
 
 const generateItems = (txnDataset) => {
-    let pageIdx = 1;
+    let pageIdx = 0;
     let itemsPerPage = 200;
+
+    txnDataset.sort((a, b) => new Date(b.inserted) - new Date(a.inserted));
 
     const tbody = document.getElementById('transactionTableBody');
 
-    for (let i = pageIdx * itemsPerPage; i < (pageIdx * itemsPerPage); i++) {
+    for (let i = pageIdx * itemsPerPage; i < (pageIdx * itemsPerPage) + itemsPerPage; i++) {
         if (!txnDataset[i]) {
             break;
         }
@@ -177,7 +179,8 @@ const generatePageIdx = (txnDataset, pageIdx, itemsPerPage) => {
         const span = document.createElement('span');
         span.innerHTML = i + 1;
         span.addEventListener('click', (e) => {
-            pageIdx = e.target.innerHTML - 1;
+            console.log('clicked');
+            pageIdx = e.target.value;
             generateItems(txnDataset);
         })
         nav.append(span);
