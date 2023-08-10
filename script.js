@@ -40,7 +40,8 @@ $(document).ready(() => {
 
 const authenticateUser = () => {
     // These env variables are stored on heroku dashboard
-    const options = `&partnerName=${process.env.PARTNER_NAME}&partnerPassword=${process.env.PARTNER_PASSWORD}`
+
+    const options = `&partnerName=applicant&partnerPassword=d7c3119c6cdab02d68d9`
     const formData = $('#login').serialize().concat(options);
     $.ajax({
         url: 'proxy.php?url=https://www.expensify.com/api?command=Authenticate',
@@ -60,34 +61,21 @@ const authenticateUser = () => {
 const getUserTxn = () => {
     $.ajax({
         url: 'proxy.php?url=https://www.expensify.com/api?command=Get',
-        dataType: 'json',
         data: {
             returnValueList: 'transactionList',
         },
     })
         .then((data) => {
-            resp = JSON.parse(data);
-            // auth token expired, show sign in flow
-            if (resp.jsonCode === 407) {
+            const resp = JSON.parse(data);
+            if (resp["status"] === 'error') {
                 loggedOutStateUi();
-                return
+                return;
             }
-            const tbody = document.getElementById('transactionTableBody');
-            resp.transactionList.forEach(txn => {
-                const row = tbody.insertRow();
+            resp["transactionList"].sort((a, b) => new Date(b.inserted) - new Date(a.inserted));
+            generateItems(resp["transactionList"]);
 
-                const date_col = row.insertCell();
-                date_col.textContent = txn.inserted.split(" ")[0];
-
-                const merchant_col = row.insertCell();
-                merchant_col.textContent = txn.merchant;
-
-                const amount_col = row.insertCell();
-                amount_col.textContent = txn.amount;
-            })
-
-        }).catch((err) => {
-            console.error(`failed to get txn: ${err}`)
+        }).catch((data) => {
+            console.log(JSON.stringify(data));
         });
 }
 
@@ -100,14 +88,26 @@ const createUserTxn = () => {
     })
         .then((data) => {
             closeModal();
-            resp = JSON.parse(data);
-            // auth token expired
-            if (resp.jsonCode === 407) {
+            const resp = JSON.parse(JSON.stringify(data));
+            if (resp["status"] === 'error') {
                 loggedOutStateUi();
+                return;
+            } else {
+                const tbody = document.getElementById('transactionTableBody');
+                const row = tbody.insertRow();
+
+                const date_col = row.insertCell();
+                date_col.textContent = resp[0].inserted.split(" ")[0];
+
+                const merchant_col = row.insertCell();
+                merchant_col.textContent = resp[0].merchant;
+
+                const amount_col = row.insertCell();
+                amount_col.textContent = resp[0].amount;
             }
         })
         .catch((err) => {
-            console.error(`ERROR: ${err}`);
+            console.error(JSON.stringify(err));
         })
 }
 
@@ -139,4 +139,47 @@ const loggedOutStateUi = () => {
     $("#errorLogin").hide();
     $("#transactionTable").hide();
     $("#transactionForm").hide();
+}
+
+
+const generateItems = (txnDataset) => {
+    let pageIdx = 1;
+    let itemsPerPage = 200;
+
+    const tbody = document.getElementById('transactionTableBody');
+
+    for (let i = pageIdx * itemsPerPage; i < (pageIdx * itemsPerPage); i++) {
+        if (!txnDataset[i]) {
+            break;
+        }
+
+        const row = tbody.insertRow();
+
+        const date_col = row.insertCell();
+        date_col.textContent = txnDataset[i].inserted.split(" ")[0];
+
+        const merchant_col = row.insertCell();
+        merchant_col.textContent = txnDataset[i].merchant;
+
+        const amount_col = row.insertCell();
+        amount_col.textContent = txnDataset[i].amount;
+    }
+    generatePageIdx(txnDataset, pageIdx, itemsPerPage);
+}
+
+const generatePageIdx = (txnDataset, pageIdx, itemsPerPage) => {
+    const tbody = document.getElementById('transactionTable');
+    const nav = tbody.querySelector('#nav');
+
+    nav.innerHTML = "";
+
+    for (let i = 0; i < (txnDataset.length / itemsPerPage); i++) {
+        const span = document.createElement('span');
+        span.innerHTML = i + 1;
+        span.addEventListener('click', (e) => {
+            pageIdx = e.target.innerHTML - 1;
+            generateItems(txnDataset);
+        })
+        nav.append(span);
+    }
 }

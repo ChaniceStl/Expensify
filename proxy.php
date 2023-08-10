@@ -19,6 +19,13 @@ $baseURL = $_REQUEST["url"];
 $requestMethod = $_SERVER["REQUEST_METHOD"]; 
 
 function getJSON($baseURL) {
+  // auth token is expired
+  if(empty($_SESSION["user"])){
+    $_SESSION = array();
+    $response = array("status" => 'error', 'message' => "User is not logged in.");
+    return json_encode($response);
+  }
+
   $ch = curl_init();
   $finalUrl = $baseURL . "&returnValueList=" . $_GET["returnValueList"];
   $token = 'authToken=' . $_SESSION["user"];
@@ -34,18 +41,12 @@ function getJSON($baseURL) {
   $response = curl_exec($ch);
 
   if ($response === false) {
-    // auth token is expired
-    if ($response.jsonCode === 407) {
-      session_destroy();
-    }
     $err = curl_error($ch);
     echo $err;
   } else {
-    $json = json_encode($response);
+    echo $response;
   }
-  
   curl_close($ch);
-  echo $json;
 }
 
 function postJSON($baseURL) {
@@ -62,27 +63,26 @@ function postJSON($baseURL) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-    $json = "";
-    $response = curl_exec($ch); 
+    $response = curl_exec($ch);
+
     if ($response === false) {
-      // auth token is expired
-      if ($response.jsonCode === 407) {
-        session_destroy();
-      }
       $err = curl_error($ch);
-      echo json_encode($err);
+      $errorResponse = array("status" => 'error', 'message' => "Something went wrong. Please try again.", 'error' => $err);
+      echo json_encode($errorResponse);
+      $_SESSION = array();
+    }
+
+    $successResponse = json_decode($response, true);
+    // first post request receives access token
+    if(empty($_SESSION["user"])) {
+      $_SESSION['LAST_ACTIVITY'] = time();
+      $_SESSION["user"] = $successResponse["authToken"];
+      echo json_encode($successResponse);
     } else {
-      $json = json_decode($response, true);
-      // first post request receives a cookie
-      if(empty($_SESSION["user"])) {
-        $_SESSION['LAST_ACTIVITY'] = time();
-        $_SESSION["user"] = $json["authToken"];
-      }
+      echo json_encode($successResponse["transactionList"]);
     }
     
     curl_close($ch);
-
-    echo json_encode($json);
   }
 
 $response = "";
